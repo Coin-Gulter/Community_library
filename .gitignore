@@ -1,6 +1,5 @@
 # Byte-compiled / optimized / C extensions
 __pycache__/
-latest/
 
 # Environments
 .env
