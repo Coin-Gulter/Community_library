@@ -60,6 +60,21 @@ services:
       broker:
         condition: service_healthy
 
+  beat:
+    build: .
+    # Command to start the Celery Beat scheduler
+    command: celery -A app.tasks.celery_app.celery beat --loglevel=info
+    volumes:
+      - ./app:/app
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
+
+
 volumes:
   postgres_data:
   redis_data:
