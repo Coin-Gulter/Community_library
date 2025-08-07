@@ -1,0 +1,29 @@
+# Core FastAPI Framework
+fastapi
+uvicorn[standard]
+
+# Database (PostgreSQL)
+sqlalchemy
+psycopg2-binary
+alembic
+
+# Asynchronous Tasks
+celery
+redis
+
+# Security and Authentication
+passlib[bcrypt]
+python-jose[cryptography]
+
+# Configuration Management
+pydantic
+pydantic-settings
+
+# Testing Framework
+pytest
+pytest-cov
+httpx
+
+# Code Quality & Linting
+flake8
+black
