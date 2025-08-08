@@ -6,61 +6,82 @@ This project is an internal backend service for a community library to manage bo
 
 ## Features
 
-* **Authentication**: Secure JWT-based authentication for members and staff.
-* **Book Management**: Register new books in the library system.
-* **Lending System**: Borrow and return books, with automatic tracking of available copies.
-* **Member Dashboard**: View all books currently borrowed by a specific member.
-* **API Versioning**: Supports multiple API versions to maintain compatibility with legacy clients.
-* **Email Notifications**:
-    * (Latest Version Only) Real-time email notifications for borrowing and returning a book.
-    * Automatic notifications for members with overdue books.
+- **User Management**: Public registration for members and secure, script-based creation for staff.
+- **Authentication**: Secure JWT-based authentication for all users.
+- **Book Management**: Staff-only endpoints to register new books.
+- **Lending System**: Borrow and return books, with automatic tracking of available copies.
+- **API Versioning**: Supports multiple API versions (`v1`, `latest`) via the `X-API-Version` header.
+- **Asynchronous Email Notifications**:
+    - Real-time email notifications for borrowing and returning a book (supported only by the `latest` API version).
+    - Automatic, daily email notifications for members with overdue books, handled by a scheduled task.
 
 ---
 
 ## Tech Stack
 
-* **Backend**: FastAPI
-* **Database**: PostgreSQL
-* **Containerization**: Docker & Docker Compose
-* **Asynchronous Tasks**: Celery with a Redis broker
-* **Code Quality**: `flake8` for linting and `pytest` for unit tests
+- **Backend**: FastAPI
+- **Database**: PostgreSQL
+- **Containerization**: Docker & Docker Compose
+- **Asynchronous Tasks**: Celery with a Redis broker and Celery Beat for scheduling
+- **Code Quality**: `flake8` for linting and `pytest` for unit tests
 
 ---
 
 ## Getting Started
 
-Follow these instructions to get the project up and running on your local machine for development and testing purposes.
+Follow these instructions to get the project up and running on your local machine.
 
-### Prerequisites
+### 1. Clone the Repository
 
-You must have the following software installed:
-* Docker
-* Docker Compose
+First, clone the project to your local machine.
 
-### Installation & Setup
+```bash
+git clone <your-repository-url>
+cd <repository-directory>
+```
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-repository-url>
-    cd <repository-directory>
-    ```
+### 2. Configure Environment Variables
 
-2.  **Create the environment file:**
-    Copy the example environment file to create your own local version. This file will hold your secret credentials.
-    ```bash
-    cp .env.example .env
-    ```
+Create your local environment file by copying the example.
 
-3.  **Configure environment variables:**
-    Open the newly created `.env` file and fill in the required values (database credentials, JWT secret key, email server configuration, etc.). For development, you can use a service like [Mailtrap.io](https://mailtrap.io/) to test email functionality without sending real emails.
+```bash
+cp .env.example .env
+```
 
-4.  **Build and run the containers:**
-    This single command will build the Docker images, start all the services (API, database, worker, broker), and run them in the background.
-    ```bash
-    docker-compose up --build -d
-    ```
+Next, **open the `.env` file and fill in your credentials.**
 
-The API service will now be running and accessible at `http://localhost:8000`.
+**Important Note on Email Testing:**
+For the `SMTP_*` variables, it is recommended to use a dedicated email testing service like **Mailtrap.io** for test.
+
+1.  Sign up for a free Mailtrap account.
+2.  Go to your inbox and find your SMTP credentials.
+3.  Copy and paste the `Host`, `Port`, `Username`, and `Password` into the corresponding `SMTP_SERVER`, `SMTP_PORT`, `SMTP_USER`, and `SMTP_PASSWORD` fields in your `.env` file.
+
+### 3. Build and Run the Services
+
+This single command will build the Docker images and start all services (API, database, worker, and beat scheduler) in the background.
+
+```bash
+docker-compose up --build -d
+```
+
+### 4. Initialize the Database
+
+After the containers have started, you must run the database initialization script. This creates all the necessary tables (`users`, `books`, etc.).
+
+```bash
+docker-compose exec api python -m app.scripts.init_db
+```
+
+### 5. Create an Initial Staff User (Recommended)
+
+To use the administrative features, you need at least one staff account. Run the following script to create one.
+
+```bash
+docker-compose exec api python -m app.scripts.create_staff --email staff@example.com --password admin123
+```
+
+Your application is now fully set up and ready to use.
 
 ---
 
@@ -68,25 +89,32 @@ The API service will now be running and accessible at `http://localhost:8000`.
 
 ### Interactive Documentation
 
-Once the application is running, you can access the interactive API documentation (Swagger UI) provided by FastAPI at:
-`http://localhost:8000/docs`
+Once the application is running, you can access the interactive API documentation (Swagger UI) at:
+**`http://localhost:8000/docs`**
 
-This interface allows you to explore and test all the API endpoints directly from your browser.
+This interface allows you to explore and test all the API endpoints directly from your browser. Remember to use the **Authorize** button after getting a token from the `/auth/token` endpoint.
 
 ### API Versioning
 
-The service supports multiple API versions for legacy clients. The desired API version must be specified in the request headers.
+The service supports versioning via the `X-API-Version` header.
+- **`v1`**: The legacy version.
+- **`latest`**: Includes all the newest features, like real-time email notifications.
 
-* **Header**: `X-API-Version`
-* **Values**: `v1` (legacy), `latest` (includes all features)
-
-If no header is provided, the system defaults to `v1`. The email notification feature on borrow/return events is only available on the `latest` version.
+If no header is provided, the API defaults to `v1`.
 
 ---
 
 ## Running Tests
 
-To run the full suite of unit tests, execute the following command. This will run `pytest` inside the `api` container.
+To run the full suite of unit tests inside the Docker container, execute the following command:
 
 ```bash
 docker-compose exec api pytest
+```
+
+## Code Linting
+
+To check the code for style and quality issues with `flake8`, run:
+
+```bash
+docker-compose exec api flake8 .

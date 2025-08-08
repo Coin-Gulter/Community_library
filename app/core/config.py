@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from typing import Optional
 
 
 class Settings(BaseSettings):
@@ -16,6 +17,13 @@ class Settings(BaseSettings):
     # Celery configuration
     CELERY_BROKER_URL: str = "redis://broker:6379/0"
     CELERY_RESULT_BACKEND: str = "redis://broker:6379/0"
+
+    # Email settings
+    SMTP_SERVER: Optional[str] = None
+    SMTP_PORT: Optional[int] = None
+    SMTP_USER: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    EMAILS_FROM_EMAIL: Optional[str] = None
 
     class Config:
         # Specifies the file to load environment variables from

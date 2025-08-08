@@ -2,18 +2,18 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 import datetime
 
-from app.models import book as book_model, user as user_model, borrowing as borrowing_model
+from app.models import base as base_model
 from app.schemas import book as book_schema
 
 
-def create_book(db: Session, book: book_schema.BookCreate, user: user_model.User):
+def create_book(db: Session, book: book_schema.BookCreate, user: base_model.User):
     """Registers a new book. Only accessible by staff."""
     if not user.is_staff:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have permission to register new books."
         )
-    db_book = book_model.Book(
+    db_book = base_model.Book(
         title=book.title,
         author=book.author,
         total_copies=book.total_copies,
@@ -25,9 +25,9 @@ def create_book(db: Session, book: book_schema.BookCreate, user: user_model.User
     return db_book
 
 
-def borrow_book(db: Session, book_id: int, member: user_model.User):
+def borrow_book(db: Session, book_id: int, member: base_model.User):
     """Borrows a book for a member."""
-    db_book = db.query(book_model.Book).filter(book_model.Book.id == book_id).first()
+    db_book = db.query(base_model.Book).filter(base_model.Book.id == book_id).first()
     if not db_book:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Book not found")
 
@@ -39,7 +39,7 @@ def borrow_book(db: Session, book_id: int, member: user_model.User):
 
     # Create borrowing record
     due_date = datetime.datetime.utcnow() + datetime.timedelta(days=14)
-    db_borrowing = borrowing_model.Borrowing(
+    db_borrowing = base_model.Borrowing(
         book_id=book_id,
         member_id=member.id,
         due_date=due_date
@@ -50,10 +50,10 @@ def borrow_book(db: Session, book_id: int, member: user_model.User):
     return db_borrowing
 
 
-def return_book(db: Session, borrowing_id: int, member: user_model.User):
+def return_book(db: Session, borrowing_id: int, member: base_model.User):
     """Returns a borrowed book."""
-    db_borrowing = db.query(borrowing_model.Borrowing).filter(
-        borrowing_model.Borrowing.id == borrowing_id
+    db_borrowing = db.query(base_model.Borrowing).filter(
+        base_model.Borrowing.id == borrowing_id
     ).first()
 
     if not db_borrowing:
@@ -77,9 +77,9 @@ def return_book(db: Session, borrowing_id: int, member: user_model.User):
     return db_borrowing
 
 
-def get_member_borrowed_books(db: Session, member: user_model.User):
+def get_member_borrowed_books(db: Session, member: base_model.User):
     """Gets all currently borrowed books for a specific member."""
-    return db.query(borrowing_model.Borrowing).filter(
-        borrowing_model.Borrowing.member_id == member.id,
-        borrowing_model.Borrowing.is_returned == False
+    return db.query(base_model.Borrowing).filter(
+        base_model.Borrowing.member_id == member.id,
+        base_model.Borrowing.is_returned == False
     ).all()

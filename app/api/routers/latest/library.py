@@ -4,7 +4,7 @@ from typing import List
 
 from app.db.session import get_db
 from app.api.deps import get_current_user
-from app.models import user as user_model
+from app.models import base as user_model
 from app.schemas import book as book_schema, borrowing as borrowing_schema
 from app.services import library_service
 

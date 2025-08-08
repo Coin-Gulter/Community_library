@@ -2,6 +2,7 @@
 # E203: Whitespace before ':'.
 # W503: Line break before binary operator.
 # E501: Line too long. Max-line-length instead.
+# E712: Comparison to True/False should be 'if cond is True:' or 'if cond is False:'.
 ignore = E203, E501, W503, E712
 
 max-line-length = 88

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.db.session import get_db
-from app.models.user import User
+from app.models.base import User
 from app.schemas.token import TokenData
 
 # This tells FastAPI where to get the token from the request

@@ -6,12 +6,14 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
+    """Schema for creating a new user."""
     password: str
 
 
 class User(UserBase):
+    """Schema for returning user data."""
     id: int
     is_staff: bool
 
     class Config:
-        orm_mode = True  # In Pydantic v2, use from_attributes = True
+        from_attributes = True

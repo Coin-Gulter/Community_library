@@ -12,18 +12,25 @@ celery
 redis
 
 # Security and Authentication
-passlib[bcrypt]
-python-jose[cryptography]
+passlib>=1.7.4
+bcrypt>=3.2.0
+python-jose
+
 
 # Configuration Management
 pydantic
+pydantic[email]
 pydantic-settings
 
 # Testing Framework
 pytest
 pytest-cov
 httpx
+pytest-mock 
 
 # Code Quality & Linting
 flake8
 black
+
+# File Uploads
+python-multipart
